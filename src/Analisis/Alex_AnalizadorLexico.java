@@ -1,11 +1,7 @@
 package Analisis;
 import java.io.IOException;
-import java.util.Hashtable;
 
-import Tokens.Token;
-import Tokens.TokenEOF;
-import Tokens.TokenSalto;
-
+import Tokens.*;
 import Excepciones.ErrorLexico;
 
 public class Alex_AnalizadorLexico {
@@ -13,33 +9,15 @@ public class Alex_AnalizadorLexico {
 	protected String linea;
 	protected int indexLine;
 	protected int nro_linea;
-	protected static String[] sentencias=
-		{"T_SentenciaOperacion",
-		 "T_SentenciaOperacion",
-		 "T_SentenciaOperacion",
-		 "T_SentenciaOperacion",
-		 "T_SentenciaOperacion",
-		 "T_SentenciaOperacion",
-		 "T_SentenciaMemoria",
-		 "T_SentenciaMemoria",
-		 "T_SentenciaAddress",
-		 "T_SentenciaAddress",
-		 "T_SentenciaAddress",
-		 "T_SentenciaAddress",
-		 "T_SentenciaT3",
-		 "T_SentenciaT3",
-		 "T_SentenciaT3",
-		 "T_Halt"};
-	protected static Hashtable<String,Integer>opcodes;
-	protected Hashtable<Character,String> casosTriviales;
-	
+	protected static Reglas reglas;
+
+		
 	public Alex_AnalizadorLexico(String filename) throws IOException{
 		nro_linea=0;
 		file= new Archivo(filename);
 		
 		recargarLinea();
-		CargarSentencias();
-		cargarTriviales();
+		reglas=Reglas.crearInstancia();
 	}
 	
 	
@@ -66,12 +44,11 @@ public class Alex_AnalizadorLexico {
 			return findeArchivo();
 
 		char caracterActual=linea.charAt(indexLine);
-		String T_ID=casosTriviales.get(caracterActual);
 		
 		if(esEspacioBlanco())
 			return saltarBlancos();
-		else if(esTrivial(T_ID))
-				return analizarCasoTrivial(T_ID,caracterActual);
+		else if(reglas.esTrivial(caracterActual))
+				return analizarCasoTrivial(caracterActual);
 			else if(caracterActual=='/')
 					return analizarComentarios();
 				else if(esOffsetNegativo())
@@ -99,9 +76,6 @@ public class Alex_AnalizadorLexico {
 	private boolean esEspacioBlanco(){
 		char caracterActual=linea.charAt(indexLine);
 		return caracterActual==' ' || caracterActual==(char)9;
-	}
-	private boolean esTrivial(String T_Id){
-		return T_Id!=null;
 	}
 	private boolean esSiguienteCaracter(char nextChar){
 		return indexLine<(linea.length()-1) && linea.charAt(indexLine+1)==nextChar;
@@ -135,9 +109,9 @@ public class Alex_AnalizadorLexico {
 		char caracter=linea.charAt(indexLine);
 		return (caracter>='0' && caracter<='8');
 	}
-	private Token analizarCasoTrivial(String T_ID,char caracterActual){
+	private Token analizarCasoTrivial(char caracterActual){
 		indexLine++;
-		return new Token(T_ID,caracterActual+"",nro_linea,indexLine+1);
+		return new Token(reglas.getIDTrivial(caracterActual),caracterActual+"",nro_linea,indexLine+1);
 	}
 	private Token analizarComentarios() throws ErrorLexico, IOException{
 		if(esSiguienteCaracter('/'))			
@@ -174,18 +148,19 @@ public class Alex_AnalizadorLexico {
 	}
 	private Token analizarDireccion(){
 		int i= Integer.parseInt(""+linea.charAt(indexLine)+linea.charAt(indexLine-1),16);
-		indexLine=indexLine+2;
+		indexLine=indexLine+2; 
 		return new Token("Lit_Dir",i,nro_linea,indexLine-1);
 	}
 	private Token analizarIdentificador() {
 		int numerocolumna=indexLine+1;
 		String lexema =nombreIdentificador();
-		Integer id=opcodes.get(lexema);
 	
-		if(id==null)
+		if(reglas.esSentencia(lexema)){
+			int id= reglas.getIDSentencia(lexema);
+			return new Token(reglas.getLexemaSentencia(id),id,nro_linea,numerocolumna);
+		}else
 			return new Token("Id_Etiq",lexema,nro_linea,numerocolumna);
-		else
-			return new Token(sentencias[id.intValue()],id.intValue(),nro_linea,numerocolumna);	
+				
 	}
 	private Token comentarioSimple() throws ErrorLexico,IOException{
 		return recargarLinea();
@@ -195,7 +170,7 @@ public class Alex_AnalizadorLexico {
 		int numeroColumna=indexLine+1;
 		Token token=null;
 
-		indexLine+=2; //salteo /*
+		indexLine+=2; 
 		
 		
 		while(noTerminaComentarioMultilinea())
@@ -229,44 +204,7 @@ public class Alex_AnalizadorLexico {
 	private boolean esGuionBajo() {
 		return linea.lastIndexOf(indexLine)=='_';
 	}
-			
-	/**
-	 * Carga las Sentencias
-	 */
-	private void CargarSentencias(){
-
-		opcodes= new Hashtable<String,Integer>();
-		try{
-		opcodes.put("add",0);
-		opcodes.put("sub",1);
-		opcodes.put("and",2);
-		opcodes.put("xor",3);
-		opcodes.put("lsh",4);
-		opcodes.put("rsh",5);
-		opcodes.put("load",6);
-		opcodes.put("store",7);
-		opcodes.put("lda",8);
-		opcodes.put("jz",9);
-		opcodes.put("jg",10);
-		opcodes.put("call",11);
-		opcodes.put("jmp",12);
-		opcodes.put("inc",13);
-		opcodes.put("dec",14);
-		opcodes.put("hlt",15);
-		}catch(NullPointerException e){
-		}
-	}
-	private void cargarTriviales(){
-		casosTriviales= new Hashtable<Character,String>();
-		try{
-			casosTriviales.put('(',"T_ParenIni");
-			casosTriviales.put(')',"T_ParenFin");
-			casosTriviales.put(':',"T_Puntos");
-			casosTriviales.put(',',"T_Coma");
-		}catch(NullPointerException e){
-		}
-	}
-	private Token findeArchivo(){
+		private Token findeArchivo(){
 		file.Close();
 		return new TokenEOF(nro_linea,indexLine);
 	}
