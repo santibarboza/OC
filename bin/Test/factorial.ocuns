@@ -1,0 +1,29 @@
+programa:    lda R0,FF    //R0<-FF
+            load R1, 0(R0) //Esto es un comentario,read()
+            add R2,R1,RF
+bucle:        dec R2
+            jz R2, etiqueta
+            add RA,RF,RF
+            add RB,R1,RF
+            add RC,R2,RF
+            call RD, rutina
+            add R1,RA,RF
+            lda RE,bucle
+            jmp RE
+etiqueta:        lda R0,FF
+            store R1,0(R0)
+            hlt
+
+
+/*
+*Rutina: recibe valores en RA,RB,RC
+*RA=0,
+*RD es la direccion de retorno
+*Retorna RA= RC*RB
+*/
+rutina:        jz RB,finrutina
+            add RA,RA,RC
+            dec RB
+            jg RB, rutina
+finrutina:        jmp RD 
+

@@ -8,6 +8,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
+import Tokens.Token;
+
 import Excepciones.ErrorEjecucion;
 import Excepciones.ErrorLexico;
 import Excepciones.ErrorSemantico;

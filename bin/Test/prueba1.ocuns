@@ -1,0 +1,17 @@
+// Teniendo en cuenta el siguiente fragmento de código ocuns:
+
+
+loop:	lda RA, 01	//cargo RA con 01
+	lda RB, 01
+	lda RC, FE
+	lda RE, loop
+
+	add R9, RA, RB
+	add RA, RB, RF
+	add RB, R9, RF
+	store R9, -1(RC)
+	jmp RE	
+/*sas
+sasa
+sas
+*/

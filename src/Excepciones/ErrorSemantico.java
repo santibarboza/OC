@@ -1,6 +1,6 @@
 package Excepciones;
 
-import Analisis.Token;
+import Tokens.Token;
 
 public class ErrorSemantico extends Exception {
 

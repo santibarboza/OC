@@ -1,4 +1,4 @@
-package Analisis;
+package Tokens;
 
 public class Token {
 	protected String ID_TOKEN;

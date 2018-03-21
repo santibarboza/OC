@@ -1,0 +1,17 @@
+		lda R5,FF
+		load R1, 0(R5)
+		jz R1, fin1
+		add RA, RF, RF
+loop1: 	call R4,rut
+		add RA, RA, RC
+		dec R1
+		jg R1, loop1
+fin1:	store RA, 0(R5)
+		hlt
+rut:	add RC, RF, RF
+		add RB, RF,R1
+		jz RB, fin2
+loop2:	add RC, RC, R1
+		dec RB
+		jg RB, loop2
+fin2:	jmp R4
