@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 import Tokens.Token;
+import Tokens.TokenEOF;
 import Tokens.TokenSalto;
 
 import Excepciones.ErrorLexico;
@@ -42,9 +43,6 @@ public class Alex_AnalizadorLexico {
 	}
 	
 	
-	/**
-	 * Recarga la linea con la siguiente linea del archivo.
-	 */
 	private Token recargarLinea() throws IOException{
 		indexLine=0;
 		do{
@@ -85,7 +83,8 @@ public class Alex_AnalizadorLexico {
 							else if(esDireccion())
 									return analizarDireccion();
 								else if(esLetra())
-									   return identificador();
+									   return analizarIdentificador();
+		
 		throw new ErrorLexico("ErrorLexico en "+nro_linea+":"+indexLine+"= El caracter "+caracterActual+" no esta valido en el lenguaje");
 	}
 
@@ -104,6 +103,38 @@ public class Alex_AnalizadorLexico {
 	private boolean esTrivial(String T_Id){
 		return T_Id!=null;
 	}
+	private boolean esSiguienteCaracter(char nextChar){
+		return indexLine<(linea.length()-1) && linea.charAt(indexLine+1)==nextChar;
+	}
+	private boolean esOffsetNegativo(){
+		return linea.charAt(indexLine)=='-' && digitoDe0a8(indexLine+1);
+	}
+	private boolean esDigito(){
+		char caracterActual= linea.charAt(indexLine);
+		return (caracterActual>'0' && caracterActual<'9'); 
+	}
+	private boolean esRegistro(){
+		return linea.charAt(indexLine)=='R' &&digitoHexa(indexLine+1)&& !esCaracterIdentificador(indexLine+2);
+	}
+	private boolean esDireccion(){
+		return digitoHexa(indexLine)&& digitoHexa(indexLine+1);
+	}
+	private boolean esLetra(){
+		char caracterActual= linea.charAt(indexLine);
+		return (caracterActual>='A' && caracterActual<='Z')||(caracterActual>='z' && caracterActual<='z');
+	}
+	private boolean digitoHexa(int indexLine){
+		if(indexLine>=linea.length())
+			return false;
+		char caracter=linea.charAt(indexLine);
+		return ((caracter>='0' && caracter<='9')||(caracter>='A' && caracter<='F'));
+	}
+	private boolean digitoDe0a8(int indexLine){
+		if(indexLine>=linea.length())
+			return false;
+		char caracter=linea.charAt(indexLine);
+		return (caracter>='0' && caracter<='8');
+	}
 	private Token analizarCasoTrivial(String T_ID,char caracterActual){
 		indexLine++;
 		return new Token(T_ID,caracterActual+"",nro_linea,indexLine+1);
@@ -116,36 +147,23 @@ public class Alex_AnalizadorLexico {
 		else
 			throw new ErrorLexico("Error Lexico en "+nro_linea+":"+indexLine+" = El caracter siguiente a / no es valido en el lenguaje");
 	}
-	private boolean esSiguienteCaracter(char nextChar){
-		return indexLine<(linea.length()-1) && linea.charAt(indexLine+1)==nextChar;
-	}
-	private boolean esOffsetNegativo(){
-		return linea.charAt(indexLine)=='-' && digitoDe0a8(indexLine+1);
-	}
 	private Token analizarDesplazamientoNegativo(){
-		int i=(linea.charAt(indexLine-1)-48); //num
+		int i=(linea.charAt(indexLine-1)-48); 
 		int complemento=16-i;
 		indexLine+=2;
 		return new Token("Lit_Desp",complemento,nro_linea,indexLine);
-	}
-	private boolean esDigito(){
-		char caracterActual= linea.charAt(indexLine);
-		return (caracterActual>'0' && caracterActual<'9'); 
 	}
 	private Token analizarDigito() throws ErrorLexico{
 		char caracterActual=linea.charAt(indexLine);
 		indexLine++;
 		if(digitoHexa(indexLine)){
 			indexLine++;
-			return new Token("Lit_Dir",Integer.parseInt(""+caracterActual+linea.charAt(indexLine-1),16),nro_linea,indexLine-1);
+			int i=Integer.parseInt(""+caracterActual+linea.charAt(indexLine-1),16);
+			return new Token("Lit_Dir",i,nro_linea,indexLine-1);
 		}else if(caracterActual<='7')
 			return new Token("Lit_Desp",(caracterActual-48),nro_linea,indexLine);
 		else
 			throw new ErrorLexico("ErrorLexico en "+nro_linea+":"+indexLine+"= Desplazamiento fuera de rango");
-
-	}
-	private boolean esRegistro(){
-		return linea.charAt(indexLine)=='R' &&digitoHexa(indexLine+1)&& !esCharIdent(indexLine+2);
 	}
 	private Token analizarRegistro(){
 		indexLine=indexLine+2;
@@ -154,108 +172,64 @@ public class Alex_AnalizadorLexico {
 			numero-=7;
 		return new Token("Id_Reg",numero -48,nro_linea,indexLine-1);
 	}
-	private boolean esDireccion(){
-		return digitoHexa(indexLine)&& digitoHexa(indexLine+1);
-	}
 	private Token analizarDireccion(){
+		int i= Integer.parseInt(""+linea.charAt(indexLine)+linea.charAt(indexLine-1),16);
 		indexLine=indexLine+2;
-		return new Token("Lit_Dir",Integer.parseInt(""+linea.charAt(indexLine)+linea.charAt(indexLine-1),16),nro_linea,indexLine-1);
+		return new Token("Lit_Dir",i,nro_linea,indexLine-1);
 	}
-	private boolean esLetra(){
-		char caracterActual= linea.charAt(indexLine);
-		return (caracterActual>='A' && caracterActual<='Z')||(caracterActual>='z' && caracterActual<='z');
-	}
+	private Token analizarIdentificador() {
+		int numerocolumna=indexLine+1;
+		String lexema =nombreIdentificador();
+		Integer id=opcodes.get(lexema);
 	
-	/** Determina sies un digito hexa*/
-	private boolean digitoHexa(int indexLine){
-		if(indexLine>=linea.length())
-			return false;
-		char c2=linea.charAt(indexLine);
-		return ((c2>='0' && c2<='9')||(c2>='A' && c2<='F'));
+		if(id==null)
+			return new Token("Id_Etiq",lexema,nro_linea,numerocolumna);
+		else
+			return new Token(sentencias[id.intValue()],id.intValue(),nro_linea,numerocolumna);	
 	}
-
-	/*determina si es un caracter de 0 a 8*/
-	private boolean digitoDe0a8(int indexLine){
-		if(indexLine>=linea.length())
-			return false;
-		char c2=linea.charAt(indexLine);
-		return ((c2>='0' && c2<='8'));
-	}
-	
-	/**
-	 * Saltea el comentario Simple
-	 * @return el siguiente Token
-	 * @throws ErrorLexico
-	 */
 	private Token comentarioSimple() throws ErrorLexico,IOException{
 		return recargarLinea();
 	}
-	/**
-	 * Saltea el comentario MultiLinea
-	 * @return el siguiente Token
-	 * @throws ErrorLexico
-	 */
 	private Token comentarioMultilinea() throws ErrorLexico,IOException {
-		int linea_inicio=nro_linea,nrocol=indexLine+1;
+		int linea_inicio=nro_linea;
+		int numeroColumna=indexLine+1;
+		Token token=null;
+
 		indexLine+=2; //salteo /*
-		Token t=null;
-		while(linea.indexOf("*/",indexLine)==-1)
-		{
-			t= recargarLinea();
-			if(linea==null)
-				throw new ErrorLexico("ErrorLexico en "+linea_inicio+":"+nrocol+"= comentario multilinea empieza pero nunca termina");
-		}
+		
+		
+		while(noTerminaComentarioMultilinea())
+			token= recargarLinea();
+
+		if(linea==null)
+			throw new ErrorLexico("ErrorLexico en "+linea_inicio+":"+numeroColumna+"= comentario multilinea empieza pero nunca termina");
+
 		indexLine=linea.indexOf("*/",indexLine)+2; 
-		return t;
+		return token;
 	}
-	/**
-	 * Saltea los espacios en blancos y las tabulaciones
-	 * @return el token que sigue a los espacios en blanco
-	 */
+	private boolean  noTerminaComentarioMultilinea(){
+		return linea!=null && linea.indexOf("*/",indexLine)==-1;
+	}
 	private Token saltarBlancos() throws ErrorLexico,IOException {
-		while(indexLine<linea.length() && (linea.charAt(indexLine)==' ' || linea.charAt(indexLine)==(char)9)){
+		while(indexLine<linea.length() && esEspacioBlanco())
 			indexLine++;
-		}
 		return getToken();
 	}
-	/**
-	 * Arma un Identificador de IDMetVar o IDClase
-	 * @return
-	 */
-	private String armarIdentificador() {
-		String lex="";
-		while(esCharIdent(indexLine)){
-			lex+=linea.charAt(indexLine);
+	private String nombreIdentificador() {
+		String lexema="";
+		while(esCaracterIdentificador(indexLine)){
+			lexema+=linea.charAt(indexLine);
 			indexLine++;
 		}
-		return lex;
+		return lexema;
 	}
-	/**
-	 * decide si elcaracter el la posicion indexLine siexiste es una letra o un nuemro o un _
-	*/
-	private boolean esCharIdent(int indexLine){
-		char c;
-		return indexLine<linea.length() && (((c=linea.charAt(indexLine))>='a'&& c<='z')||(c>='A'&& c<='Z')||(c>='0' && c<='9')|| c=='_'); 
+	private boolean esCaracterIdentificador(int indexLine){
+		return indexLine<linea.length() && (esLetra()||esDigito()|| esGuionBajo()); 
 	}
-
-	/**
-	*Arma un identificador quesino esuna palabra de lassentencias es una etiqueta
-	*/
-
-	private Token identificador() {
-		int nrocol=indexLine+1;
-		String lex =armarIdentificador();
-		Token ret=null;
-		Integer id=opcodes.get(lex);
-		if(id==null)
-			ret=new Token("Id_Etiq",lex,nro_linea,nrocol);
-		else
-			ret=new Token(sentencias[id.intValue()],id.intValue(),nro_linea,nrocol);
-	
-		return ret;	
+	private boolean esGuionBajo() {
+		return linea.lastIndexOf(indexLine)=='_';
 	}
-	
-		
+			
 	/**
 	 * Carga las Sentencias
 	 */
@@ -282,9 +256,6 @@ public class Alex_AnalizadorLexico {
 		}catch(NullPointerException e){
 		}
 	}
-	/**
-	 * Carga las casos triviales
-	 */
 	private void cargarTriviales(){
 		casosTriviales= new Hashtable<Character,String>();
 		try{
@@ -295,13 +266,9 @@ public class Alex_AnalizadorLexico {
 		}catch(NullPointerException e){
 		}
 	}
-	/**
-	 * Cierra el archivo y devuelve el token EOF
-	 * @return un token de tipo EOF
-	 */
 	private Token findeArchivo(){
 		file.Close();
-		return new Token("EOF","EOF",nro_linea,indexLine);
+		return new TokenEOF(nro_linea,indexLine);
 	}
 	
 }
