@@ -1,0 +1,11 @@
+		lda RA,00
+		lda RB,02
+		lda R5,FF
+		load R5,0(R5)
+loop:	add RA,RA,RB
+		dec R5
+		jg R5,loop
+		lda R2,FF
+		store RA, 0(R2)
+		hlt
+		

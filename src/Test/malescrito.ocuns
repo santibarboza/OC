@@ -1,0 +1,4 @@
+programa:    lda R0,FF    
+            load 1, 0 (R0) //R1!=1
+            add R2,R1,RF
+
