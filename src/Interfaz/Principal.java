@@ -2,13 +2,15 @@ package Interfaz;
 
 import java.io.IOException;
 
-import javax.swing.JLabel;
+//import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 
 import Analisis.Alex_AnalizadorLexico;
 import Analisis.Ase_AnalizadorSintacticoEjecucion;
+import Emulacion.OutpuManager;
+import Emulacion.OutputTextPane;
 import Excepciones.ErrorEjecucion;
 import Excepciones.ErrorLexico;
 import Excepciones.ErrorSemantico;
@@ -24,11 +26,13 @@ public class Principal {
 	private String archivo="";
 	private Alex_AnalizadorLexico alex;
 	private Ase_AnalizadorSintacticoEjecucion asi;
-	private boolean hayPaso;
+	private OutpuManager output;
+	//private boolean hayPaso;
+	
 	public Principal(){
 		elegido_arch=false;
 		archivo="";
-		hayPaso=true;
+//		hayPaso=true;
 	}
 	public void setArchivoNuevo(String arch){
 		archivo =arch;
@@ -42,6 +46,7 @@ public class Principal {
 	}
 	public boolean compilar(String dirIni,JTextPane textPane,JTable mem){
 		boolean exito=true;
+		output=new OutputTextPane(textPane,mem);
 		try {
 			int dirInicio;
 			try{
@@ -55,8 +60,9 @@ public class Principal {
 			alex = new Alex_AnalizadorLexico(archivo);
 			asi= new Ase_AnalizadorSintacticoEjecucion(alex,dirInicio);
 			System.out.println("Inicia Analisis...");
-			String ret= asi.inicial(mem);
-			textPane.setText(ret);
+			asi.inicial();
+			output.mostrarMemoria(asi.getMemoria(),asi.getTablaEtiqueta());
+			
 			JOptionPane.showMessageDialog(null, "Se compilo correctamente");
 		} catch (ErrorLexico |ErrorSintactico|ErrorSemantico | ErrorEjecucion e){ 	
 			System.out.println(e.getMessage()); 

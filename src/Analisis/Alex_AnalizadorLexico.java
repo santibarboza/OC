@@ -85,17 +85,17 @@ public class Alex_AnalizadorLexico {
 	}
 	private boolean esDigito(){
 		char caracterActual= linea.charAt(indexLine);
-		return (caracterActual>'0' && caracterActual<'9'); 
+		return (caracterActual>='0' && caracterActual<='9'); 
 	}
 	private boolean esRegistro(){
-		return linea.charAt(indexLine)=='R' &&digitoHexa(indexLine+1)&& !esCaracterIdentificador(indexLine+2);
+		return indexLine<(linea.length()-1) && linea.charAt(indexLine)=='R' && digitoHexa(indexLine+1);//&& !esCaracterIdentificador(indexLine+2);
 	}
 	private boolean esDireccion(){
 		return digitoHexa(indexLine)&& digitoHexa(indexLine+1);
 	}
 	private boolean esLetra(){
 		char caracterActual= linea.charAt(indexLine);
-		return (caracterActual>='A' && caracterActual<='Z')||(caracterActual>='z' && caracterActual<='z');
+		return (caracterActual>='A' && caracterActual<='Z')||(caracterActual>='a' && caracterActual<='z');
 	}
 	private boolean digitoHexa(int indexLine){
 		if(indexLine>=linea.length())
@@ -147,7 +147,7 @@ public class Alex_AnalizadorLexico {
 		return new Token("Id_Reg",numero -48,nro_linea,indexLine-1);
 	}
 	private Token analizarDireccion(){
-		int i= Integer.parseInt(""+linea.charAt(indexLine)+linea.charAt(indexLine-1),16);
+		int i= Integer.parseInt(""+linea.charAt(indexLine)+linea.charAt(indexLine+1),16);
 		indexLine=indexLine+2; 
 		return new Token("Lit_Dir",i,nro_linea,indexLine-1);
 	}

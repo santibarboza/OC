@@ -3,15 +3,11 @@ package Analisis;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import javax.swing.JTable;
 
 import Tokens.Token;
 
 import Emulacion.*;
-import Excepciones.ErrorEjecucion;
-import Excepciones.ErrorLexico;
-import Excepciones.ErrorSemantico;
-import Excepciones.ErrorSintactico;
+import Excepciones.*;
 
 public class Ase_AnalizadorSintacticoEjecucion {
 
@@ -33,7 +29,7 @@ public class Ase_AnalizadorSintacticoEjecucion {
 	
 	public Ase_AnalizadorSintacticoEjecucion(Alex_AnalizadorLexico lex,int dirInicio) throws ErrorLexico, IOException, ErrorEjecucion{
 		alex=lex;
-		memoria= new Memoria();
+		memoria= new MemoriaImp();
 		etiquetas= new TablasdeEtiquetas();
 		simbolos=new Hashtable<String,String> ();
 		tokenActual=lex.getToken();
@@ -46,9 +42,7 @@ public class Ase_AnalizadorSintacticoEjecucion {
 	/**
 	 * <Inicial> → <Sentencias>  EOF
  	 */
-	//public void inicial(boolean ejecutar,int traza,int inidir,int findir)throws ErrorSintactico, ErrorLexico, IOException, ErrorSemantico, ErrorEjecucion{
-	public String inicial(JTable mem)throws ErrorSintactico, ErrorLexico, IOException, ErrorSemantico, ErrorEjecucion{
-		
+	public void inicial()throws ErrorSintactico, ErrorLexico, IOException, ErrorSemantico, ErrorEjecucion{
 		try{
 			Sentencias();
 		}catch(ArrayIndexOutOfBoundsException e){
@@ -58,10 +52,8 @@ public class Ase_AnalizadorSintacticoEjecucion {
 		
 		System.out.println("Programa Correcto Sintacticamente");
 		etiquetas.remplazarEtiquetas(memoria);
-		//String ret=mostrarCodificado();
-		//mostrarMemoria(mem);
-		
-		return null;
+	
+			
 	}
 	
 	/**
@@ -183,6 +175,7 @@ public class Ase_AnalizadorSintacticoEjecucion {
 	}
 	private void match(String ID_T)throws ErrorSintactico, ErrorLexico, IOException{
 		String posibles=simbolos.get(ID_T);
+		System.out.println(idTok);
 		if(esIgual(ID_T)){
 			tokenActual=alex.getToken();
 			idTok=tokenActual.get_IDTOKEN();
@@ -218,94 +211,7 @@ public class Ase_AnalizadorSintacticoEjecucion {
 		
 	}
 
-	/*
-	 * Muestreo la memoria
-	 /
-	private String mostrarCodificado() {
-		int i=0;
-		int PC,dir=direccionInicio;
-		String ret="";
-		for(i=dir;i+1<direccionActual;i=i+2){
-			PC=i;
-			if(i<16)
-				ret+="0";
-			ret+=(hex(PC)+"h. "+hex2Dig(memoria[i])+hex2Dig(memoria[i+1])+"	");
-			ret+="|| "+(mostrarInstruccion(PC));
-			ret+="\n";
-		}
-		ret+=("\n");
-		return ret;
-	}
-/*
-	
-	private String mostrarInstruccion(int i) {
-		int opcode=memoria[i]/16;
-		int rd=memoria[i]%16;
-		int off,dir=memoria[i+1],rs1=dir/16,rs2=off=dir%16;
-		String etiq="",direccion="",aux;
-		aux=pendiente.get(i+1);
-		
-		String ret="";
-		
-		if(aux!=null)
-			direccion+=aux;
-		else
-			direccion=hex2Dig(dir);
-		
-		switch(opcode){
-			case 0:
-				ret+=(etiq+" add R"+hex(rd)+", R"+hex(rs1)+", R"+hex(rs2));
-				break;
-			case 1:
-				ret+=(etiq+" sub R"+hex(rd)+", R"+hex(rs1)+", R"+hex(rs2));
-				break;
-			case 2:
-				ret+=(etiq+" and R"+hex(rd)+", R"+hex(rs1)+", R"+hex(rs2));
-				break;
-			case 3:
-				ret+=(etiq+" xor R"+hex(rd)+", R"+hex(rs1)+", R"+hex(rs2));
-				break;
-			case 4:
-				ret+=(etiq+" lsh R"+hex(rd)+", R"+hex(rs1)+", R"+hex(rs2));
-				break;
-			case 5:
-				ret+=(etiq+" rsh R"+hex(rd)+", R"+hex(rs1)+", R"+hex(rs2));
-				break;
-			case 6:
-				ret+=(etiq+" load R"+hex(rd)+", "+comp(off)+"(R"+hex(rs2)+")");
-				break;
-			case 7:
-				ret+=(etiq+" store R"+hex(rs1)+", "+comp(off)+"(R"+hex(rd)+")");
-				break;
-			case 8:
-				ret+=(etiq+" lda R"+hex(rd)+", "+direccion);
-				break;
-			case 9:
-				ret+=(etiq+" jz R"+hex(rd)+", "+direccion);
-				break;
-			case 10:
-				ret+=(etiq+" jg R"+hex(rd)+", "+direccion);
-				break;
-			case 11:
-				ret+=(etiq+" call R"+hex(rd)+", "+direccion);
-				break;
-			case 12:
-				ret+=(etiq+" jmp R"+hex(rd));
-				break;
-			case 13:
-	
-				ret+=(etiq+" inc R"+hex(rd));
-				break;
-			case 14:
-				ret+=(etiq+" dec R"+hex(rd));
-				break;
-			case 15:
-				ret+=(etiq+" hlt");
-				break;
-		}
-		return ret;
-	}
-
+	/*	
 	
 	
 	public void ejecutar(JTable table,JTable mem,JLabel PC,JLabel Inst) throws ErrorSintactico, ErrorEjecucion {
@@ -733,6 +639,13 @@ public class Ase_AnalizadorSintacticoEjecucion {
 			return hayOtroPaso;
 	}
 */
+	
+	public Memoria getMemoria(){
+		return memoria;
+	}
+	public TablasdeEtiquetas getTablaEtiqueta(){
+		return etiquetas;
+	}
 }
 
 

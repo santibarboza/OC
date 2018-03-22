@@ -41,5 +41,8 @@ public class TablasdeEtiquetas {
 			}
 		}
 	}
+	public String obtenerEtiqueta(int i){
+		return pendiente.get(i);
+	}
 }
 
