@@ -69,6 +69,8 @@ public class Principal {
 		
 		return exito;
 	}
+	
+	/*
 	public boolean ejecutar(JTable table,JTable mem,JLabel PC,JLabel Inst){
 		boolean exito=true;
 		try {
@@ -107,5 +109,5 @@ public class Principal {
 	public void resetearRegistros(){
 		asi.resetearRegistros();
 	}
-
+*/
 }

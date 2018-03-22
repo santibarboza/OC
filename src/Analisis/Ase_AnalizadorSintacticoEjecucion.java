@@ -3,13 +3,11 @@ package Analisis;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 
 import Tokens.Token;
 
+import Emulacion.*;
 import Excepciones.ErrorEjecucion;
 import Excepciones.ErrorLexico;
 import Excepciones.ErrorSemantico;
@@ -23,42 +21,21 @@ public class Ase_AnalizadorSintacticoEjecucion {
 	protected Alex_AnalizadorLexico alex;
 	protected Token tokenActual;
 	protected String idTok;
-	protected Hashtable<String,String> simbolos;
-	protected Hashtable<String,Integer> etiquetas;
-	protected Hashtable<Integer,String> pendiente;
-
-	protected int memoria[];
-	protected int registro[];
-	protected int direccionInicio;
-	protected int direccionActual;
 	
-	/*
-	 * Creo un Analizador Sintactico
-	 */
-	public Ase_AnalizadorSintacticoEjecucion(Alex_AnalizadorLexico lex) throws ErrorLexico, IOException{
-		alex=lex;
-		direccionInicio=0;
-		memoria= new int[256];
-		registro= new int[16];
-		simbolos=new Hashtable<String,String> ();
-		etiquetas=new Hashtable<String,Integer> ();
-		pendiente= new Hashtable<Integer,String>();
-		tokenActual=lex.getToken();
-		idTok=tokenActual.get_IDTOKEN();
-		cargarSimbolos();
+	protected Hashtable<String,String> simbolos;
+	protected TablasdeEtiquetas etiquetas;
+	protected Memoria memoria;
+	
+	
+	public Ase_AnalizadorSintacticoEjecucion(Alex_AnalizadorLexico lex) throws ErrorLexico, IOException, ErrorEjecucion{
+		this(lex,0);
 	}
 	
-	/*
-	 * Creo un Analizador Sintactico con direccion de inicio
-	 */
 	public Ase_AnalizadorSintacticoEjecucion(Alex_AnalizadorLexico lex,int dirInicio) throws ErrorLexico, IOException, ErrorEjecucion{
 		alex=lex;
-		direccionInicio=dirInicio;
-		memoria= new int[256];
-		registro= new int[16];
+		memoria= new Memoria();
+		etiquetas= new TablasdeEtiquetas();
 		simbolos=new Hashtable<String,String> ();
-		etiquetas=new Hashtable<String,Integer> ();
-		pendiente= new Hashtable<Integer,String>();
 		tokenActual=lex.getToken();
 		idTok=tokenActual.get_IDTOKEN();
 		cargarSimbolos();
@@ -71,7 +48,7 @@ public class Ase_AnalizadorSintacticoEjecucion {
  	 */
 	//public void inicial(boolean ejecutar,int traza,int inidir,int findir)throws ErrorSintactico, ErrorLexico, IOException, ErrorSemantico, ErrorEjecucion{
 	public String inicial(JTable mem)throws ErrorSintactico, ErrorLexico, IOException, ErrorSemantico, ErrorEjecucion{
-		direccionActual=direccionInicio;
+		
 		try{
 			Sentencias();
 		}catch(ArrayIndexOutOfBoundsException e){
@@ -80,11 +57,11 @@ public class Ase_AnalizadorSintacticoEjecucion {
 		match("EOF");
 		
 		System.out.println("Programa Correcto Sintacticamente");
-		remplazarEtiquetas();
-		String ret=mostrarCodificado();
-		mostrarMemoria(mem);
+		etiquetas.remplazarEtiquetas(memoria);
+		//String ret=mostrarCodificado();
+		//mostrarMemoria(mem);
 		
-		return ret;
+		return null;
 	}
 	
 	/**
@@ -125,8 +102,8 @@ public class Ase_AnalizadorSintacticoEjecucion {
 			match("T_Coma");
 				rs2=tokenActual.get_Lexema();
 			match("Id_Reg");
-				escribir(opcode*16+rd);
-				escribir(rs1*16+rs2);
+				memoria.escribirMemoria(opcode*16+rd);
+				memoria.escribirMemoria(rs1*16+rs2);
 		}else if(esIgual("T_SentenciaMemoria")){
 			boolean load=tokenActual.get_Lexema()==6;
 			match("T_SentenciaMemoria"); 
@@ -143,7 +120,7 @@ public class Ase_AnalizadorSintacticoEjecucion {
 
 			}else{
 					rs1=tokenActual.get_Lexema();
-				//escribir(convertirHexa(tokenActual.get_Lexema()));
+				//memoria.escribirMemoria(convertirHexa(tokenActual.get_Lexema()));
 				match("Id_Reg");
 				match("T_Coma");
 					off=tokenActual.get_Lexema();
@@ -153,25 +130,25 @@ public class Ase_AnalizadorSintacticoEjecucion {
 				match("Id_Reg");
 				match("T_ParenFin");;
 			}
-			escribir(opcode*16+rd);
-			escribir(rs1*16+off);
+			memoria.escribirMemoria(opcode*16+rd);
+			memoria.escribirMemoria(rs1*16+off);
 		}else if(esIgual("T_SentenciaAddress")){
 			match("T_SentenciaAddress");
 			rd=tokenActual.get_Lexema();
 			match("Id_Reg");
 			match("T_Coma");
-				escribir(opcode*16+rd);
+				memoria.escribirMemoria(opcode*16+rd);
 			dirOEtiq();
 		}else if(esIgual("T_SentenciaT3")){
 			match("T_SentenciaT3");
 				rd=tokenActual.get_Lexema();
 			match("Id_Reg");
-			escribir(opcode*16+rd);
-			escribir(0);		
+			memoria.escribirMemoria(opcode*16+rd);
+			memoria.escribirMemoria(0);		
 		}else if(esIgual("T_Halt")){
 				match("T_Halt");
-				escribir(opcode*16);
-				escribir(0);
+				memoria.escribirMemoria(opcode*16);
+				memoria.escribirMemoria(0);
 		}else if(esIgual("T_Salto"))
 				match("T_Salto");
 		else
@@ -180,13 +157,13 @@ public class Ase_AnalizadorSintacticoEjecucion {
 	
 	private void dirOEtiq() throws ErrorSintactico, ErrorLexico, IOException, ErrorEjecucion {
 		if(esIgual("Lit_Dir")){
-			escribir(tokenActual.get_Lexema());
+			memoria.escribirMemoria(tokenActual.get_Lexema());
 			match("Lit_Dir");
 		}
 		else if(esIgual("Id_Etiq")){
-			pendiente.put(direccionActual, tokenActual.get_Etiqueta());
+			etiquetas.cargarEtiquetaPendiente(memoria.getDireccionActual(), tokenActual.get_Etiqueta());
 			match("Id_Etiq");
-			escribir(0);
+			memoria.escribirMemoria(0);
 		}
 		else
 			throw new ErrorSintactico(Error("Direccion o Etiqueta"));
@@ -197,21 +174,13 @@ public class Ase_AnalizadorSintacticoEjecucion {
 	 */
 	private void EtiquetaOLam() throws ErrorSintactico, ErrorLexico, IOException {
 		if(esIgual("Id_Etiq")){
-			etiquetas.put(tokenActual.get_Etiqueta(), direccionActual);
+			etiquetas.cargarDirecciondeEtiqueta(tokenActual.get_Etiqueta(), memoria.getDireccionActual());
 			match("Id_Etiq");
 			match("T_Puntos");
 		}else if(!esSentencia())
 			throw new ErrorSintactico(Error("inicio de Sentencia"));
 		
 	}
-
-	/**
-	 * 
-	 * @param ID_T
-	 * @throws ErrorSintactico
-	 * @throws IOException 
-	 * @throws ErrorLexico 
-	 */
 	private void match(String ID_T)throws ErrorSintactico, ErrorLexico, IOException{
 		String posibles=simbolos.get(ID_T);
 		if(esIgual(ID_T)){
@@ -220,29 +189,11 @@ public class Ase_AnalizadorSintacticoEjecucion {
 		}else
 			throw new ErrorSintactico(Error(posibles));
 	}
-	
-	/*
-	 * Formateo un error Sintactico
-	 */
-
 	private String Error(String esperado){
 		return"Error Sintactico ("+tokenActual.get_NroLinea()+":"+tokenActual.get_NroCol()+")= Se esperaba un "+esperado+" y se encontro un "+simbolos.get(idTok)+" "+tokenActual.get_Lexema();
 	}
-	
-
 	private boolean esIgual(String txt){
 		return idTok.equals(txt);
-	}
-	
-	/*
-	 * Escribe en memoria
-	 */
-	private void escribir(int m) throws ErrorEjecucion{
-		if(direccionActual>255)
-			throw new ErrorEjecucion("Codigo alocado fuera de la memoria");
-		direccionActual=direccionActual & 255;
-		memoria[direccionActual]=m;
-		direccionActual++;
 	}
 
 	/*
@@ -266,33 +217,10 @@ public class Ase_AnalizadorSintacticoEjecucion {
 			}
 		
 	}
-	/*
-	 * REmplazo el vlaor de las etiquetas
-	 */
-	private void remplazarEtiquetas() throws ErrorSintactico {
-		int pcActual,des;
-		for(Integer i: pendiente.keySet()){
-			int opcode= memoria[i-1]/16;
-			Integer direccionTarget=etiquetas.get(pendiente.get(i));
-			
-			if(direccionTarget==null)
-				throw new ErrorSintactico("ErrorSintactico = Etiqueta "+pendiente.get(i)+" no definida");
-			
-			if(opcode==8 || opcode==11){
-				memoria[i]=direccionTarget;
-			}else{
-				pcActual=i+1;
-				des=direccionTarget-pcActual;
-				if(des<0){
-					des=256+des;
-				}
-				memoria[i]=des;
-			}
-		}
-	}
+
 	/*
 	 * Muestreo la memoria
-	 */
+	 /
 	private String mostrarCodificado() {
 		int i=0;
 		int PC,dir=direccionInicio;
@@ -308,7 +236,7 @@ public class Ase_AnalizadorSintacticoEjecucion {
 		ret+=("\n");
 		return ret;
 	}
-
+/*
 	
 	private String mostrarInstruccion(int i) {
 		int opcode=memoria[i]/16;
@@ -365,6 +293,7 @@ public class Ase_AnalizadorSintacticoEjecucion {
 				ret+=(etiq+" jmp R"+hex(rd));
 				break;
 			case 13:
+	
 				ret+=(etiq+" inc R"+hex(rd));
 				break;
 			case 14:
@@ -377,6 +306,8 @@ public class Ase_AnalizadorSintacticoEjecucion {
 		return ret;
 	}
 
+	
+	
 	public void ejecutar(JTable table,JTable mem,JLabel PC,JLabel Inst) throws ErrorSintactico, ErrorEjecucion {
 		int instruccion=0, opcode, rd, rs, rt, addr, offset,desp;
 		int pc= direccionInicio;
@@ -493,7 +424,7 @@ public class Ase_AnalizadorSintacticoEjecucion {
 			mostrarMemoria(mem);
 		}
 	}
-
+*/
 //	private void ejecutar() throws ErrorSintactico, ErrorEjecucion {
 //		int instruccion, opcode, rd, rs, rt, addr, offset,desp;
 //		int pc= direccionInicio;
@@ -616,7 +547,7 @@ public class Ase_AnalizadorSintacticoEjecucion {
 //	}
 
 	
-	
+/*	
 	private int comp(int i) {
 		int j=i;
 		if(i>127)
@@ -638,6 +569,7 @@ public class Ase_AnalizadorSintacticoEjecucion {
 			a+="0";
 		return a+hex(i);
 	}
+
 	private void mostrarRegistros(JTable table) {
 		String[] titulos = {"Registro","Contenido"};
 		DefaultTableModel m=new DefaultTableModel(null,titulos);
@@ -665,12 +597,18 @@ public class Ase_AnalizadorSintacticoEjecucion {
 		}
 		table.setModel(m);
 	}
+	
 	private String hex(int a){
 		return Integer.toHexString(a).toUpperCase();
 	}
+	
+	/*
 	public void resetearRegistros(){
+	
 		registro= new int[16];
 	}
+	
+	
 	private int pcPAP;
 	public boolean ejecutarPaP(JTable table,JTable mem,JLabel PC,JLabel Inst) throws ErrorSintactico, ErrorEjecucion {
 		pcPAP=direccionInicio;
@@ -794,7 +732,7 @@ public class Ase_AnalizadorSintacticoEjecucion {
 			
 			return hayOtroPaso;
 	}
-
+*/
 }
 
 

@@ -384,18 +384,18 @@ public class GUI {
   	}
     class OyenteEjec implements ActionListener {
     	public void actionPerformed(ActionEvent evt) {
-		ppal.resetearRegistros();
+	//	ppal.resetearRegistros();
     		btnSiguiente.setEnabled(comboBox.getSelectedIndex()==1);
-    		if(comboBox.getSelectedIndex()==0)
-    			ppal.ejecutar(table,table1,lblPc,lblIntruccion);
-    		else
-    			ppal.ejecutarPAP(table,table1,lblPc,lblIntruccion);
+    //		if(comboBox.getSelectedIndex()==0)
+    //			ppal.ejecutar(table,table1,lblPc,lblIntruccion);
+    //		else
+    //			ppal.ejecutarPAP(table,table1,lblPc,lblIntruccion);
     	}
     }
     class OyenteSig implements ActionListener {
     	public void actionPerformed(ActionEvent evt) {
-    		if(!ppal.adelantarPaso(table,table1,lblPc,lblIntruccion))
-    			btnSiguiente.setEnabled(false);
+    //		if(!ppal.adelantarPaso(table,table1,lblPc,lblIntruccion))
+    //			btnSiguiente.setEnabled(false);
     	}
     }class OyenteMem implements ActionListener {
     	public void actionPerformed(ActionEvent evt) {
