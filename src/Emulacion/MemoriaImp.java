@@ -44,4 +44,11 @@ public class MemoriaImp implements Memoria{
 	public int getDireccionInicio(){
 		return direccionInicio;
 	}
+	public void escribirRegistro(int nro, int m) {
+		registro[nro]=m;
+	}
+	@Override
+	public int leerRegistro(int nro) {
+		return registro[nro];
+	}
 }

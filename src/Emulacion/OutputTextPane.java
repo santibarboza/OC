@@ -1,18 +1,24 @@
 package Emulacion;
 
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.table.DefaultTableModel;
 
-public class OutputTextPane implements OutpuManager {
+public class OutputTextPane implements OutputManager {
 	private JTextPane outputPanel;
 	private JTable outputTable;
+	private JLabel PCLabel;
+	private JLabel instruccionLabel;
 	private Memoria memoria;
 	private TablasdeEtiquetas etiquetas;
 	
-	public OutputTextPane(JTextPane panel,JTable table){
+	public OutputTextPane(JTextPane panel,JTable table,JLabel PC,JLabel Instruccion){
 		outputPanel=panel;
 		outputTable=table;
+		PCLabel=PC;
+		instruccionLabel=Instruccion;
 	}
 	public void mostrarMemoria(Memoria memoriaCompleta,TablasdeEtiquetas etiquetasCompletas) {
 		memoria=memoriaCompleta;
@@ -22,8 +28,8 @@ public class OutputTextPane implements OutpuManager {
 		
 		String [] mem=new String [2];
 		for(int i=0;i<256;i++){
-			mem[0]=hex2Dig(i);
-			mem[1]=hex2Dig(memoria.leerMemoria(i));
+			mem[0]=Hexadecimal.hex2Dig(i);
+			mem[1]=Hexadecimal.hex2Dig(memoria.leerMemoria(i));
 			m.addRow(mem);
 		}
 		outputTable.setModel(m);
@@ -37,22 +43,14 @@ public class OutputTextPane implements OutpuManager {
 			PC=i;
 			if(i<16)
 				ret+="0";
-			ret+=(hex(PC)+"h. "+hex2Dig(memoria.leerMemoria(i))+hex2Dig(memoria.leerMemoria(i+1))+"	");
+			ret+=(Hexadecimal.hex(PC)+"h. "+Hexadecimal.hex2Dig(memoria.leerMemoria(i))+Hexadecimal.hex2Dig(memoria.leerMemoria(i+1))+"	");
 			ret+="|| "+(mostrarInstruccion(PC));
 			ret+="\n";
 		}
 		ret+=("\n");
 		outputPanel.setText(ret);
 	}
-	private String hex2Dig(int i) {
-		String a="";
-		if (i<16)
-			a+="0";
-		return a+hex(i);
-	}
-	private String hex(int a){
-		return Integer.toHexString(a).toUpperCase();
-	}
+	
 	private String mostrarInstruccion(int i) {
 		int opcode=memoria.leerMemoria(i)/16;
 		int rd=memoria.leerMemoria(i)%16;
@@ -66,54 +64,54 @@ public class OutputTextPane implements OutpuManager {
 		if(aux!=null)
 			direccion+=aux;
 		else
-			direccion=hex2Dig(dir);
+			direccion=Hexadecimal.hex2Dig(dir);
 		
 		switch(opcode){
 			case 0:
-				ret+=(etiq+" add R"+hex(rd)+", R"+hex(rs1)+", R"+hex(rs2));
+				ret+=(etiq+" add R"+Hexadecimal.hex(rd)+", R"+Hexadecimal.hex(rs1)+", R"+Hexadecimal.hex(rs2));
 				break;
 			case 1:
-				ret+=(etiq+" sub R"+hex(rd)+", R"+hex(rs1)+", R"+hex(rs2));
+				ret+=(etiq+" sub R"+Hexadecimal.hex(rd)+", R"+Hexadecimal.hex(rs1)+", R"+Hexadecimal.hex(rs2));
 				break;
 			case 2:
-				ret+=(etiq+" and R"+hex(rd)+", R"+hex(rs1)+", R"+hex(rs2));
+				ret+=(etiq+" and R"+Hexadecimal.hex(rd)+", R"+Hexadecimal.hex(rs1)+", R"+Hexadecimal.hex(rs2));
 				break;
 			case 3:
-				ret+=(etiq+" xor R"+hex(rd)+", R"+hex(rs1)+", R"+hex(rs2));
+				ret+=(etiq+" xor R"+Hexadecimal.hex(rd)+", R"+Hexadecimal.hex(rs1)+", R"+Hexadecimal.hex(rs2));
 				break;
 			case 4:
-				ret+=(etiq+" lsh R"+hex(rd)+", R"+hex(rs1)+", R"+hex(rs2));
+				ret+=(etiq+" lsh R"+Hexadecimal.hex(rd)+", R"+Hexadecimal.hex(rs1)+", R"+Hexadecimal.hex(rs2));
 				break;
 			case 5:
-				ret+=(etiq+" rsh R"+hex(rd)+", R"+hex(rs1)+", R"+hex(rs2));
+				ret+=(etiq+" rsh R"+Hexadecimal.hex(rd)+", R"+Hexadecimal.hex(rs1)+", R"+Hexadecimal.hex(rs2));
 				break;
 			case 6:
-				ret+=(etiq+" load R"+hex(rd)+", "+comp(off)+"(R"+hex(rs2)+")");
+				ret+=(etiq+" load R"+Hexadecimal.hex(rd)+", "+Hexadecimal.comp(off)+"(R"+Hexadecimal.hex(rs2)+")");
 				break;
 			case 7:
-				ret+=(etiq+" store R"+hex(rs1)+", "+comp(off)+"(R"+hex(rd)+")");
+				ret+=(etiq+" store R"+Hexadecimal.hex(rs1)+", "+Hexadecimal.comp(off)+"(R"+Hexadecimal.hex(rd)+")");
 				break;
 			case 8:
-				ret+=(etiq+" lda R"+hex(rd)+", "+direccion);
+				ret+=(etiq+" lda R"+Hexadecimal.hex(rd)+", "+direccion);
 				break;
 			case 9:
-				ret+=(etiq+" jz R"+hex(rd)+", "+direccion);
+				ret+=(etiq+" jz R"+Hexadecimal.hex(rd)+", "+direccion);
 				break;
 			case 10:
-				ret+=(etiq+" jg R"+hex(rd)+", "+direccion);
+				ret+=(etiq+" jg R"+Hexadecimal.hex(rd)+", "+direccion);
 				break;
 			case 11:
-				ret+=(etiq+" call R"+hex(rd)+", "+direccion);
+				ret+=(etiq+" call R"+Hexadecimal.hex(rd)+", "+direccion);
 				break;
 			case 12:
-				ret+=(etiq+" jmp R"+hex(rd));
+				ret+=(etiq+" jmp R"+Hexadecimal.hex(rd));
 				break;
 			case 13:
 	
-				ret+=(etiq+" inc R"+hex(rd));
+				ret+=(etiq+" inc R"+Hexadecimal.hex(rd));
 				break;
 			case 14:
-				ret+=(etiq+" dec R"+hex(rd));
+				ret+=(etiq+" dec R"+Hexadecimal.hex(rd));
 				break;
 			case 15:
 				ret+=(etiq+" hlt");
@@ -121,13 +119,16 @@ public class OutputTextPane implements OutpuManager {
 		}
 		return ret;
 	}
-	private int comp(int i) {
-		int j=i;
-		if(i>127)
-			j=-(256-i);
-		if(i<0)
-			j=256+i;
-		return j;
+	public void mostrarMensaje(String txt){
+		JOptionPane.showMessageDialog(null, txt);
 	}
-
+	public String pedirDialogo(String txt){
+		return JOptionPane.showInputDialog(txt);
+	}
+	public void actualizarPCVisual(int pc){
+		PCLabel.setText("PC= "+Hexadecimal.hex2Dig(pc));
+	}
+	public void actualizarVisualIntruccion(int pc){
+		instruccionLabel.setText(mostrarInstruccion(pc));
+	}
 }

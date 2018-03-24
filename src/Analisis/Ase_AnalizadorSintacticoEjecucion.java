@@ -330,6 +330,7 @@ public class Ase_AnalizadorSintacticoEjecucion {
 			mostrarMemoria(mem);
 		}
 	}
+
 */
 //	private void ejecutar() throws ErrorSintactico, ErrorEjecucion {
 //		int instruccion, opcode, rd, rs, rt, addr, offset,desp;
@@ -454,27 +455,6 @@ public class Ase_AnalizadorSintacticoEjecucion {
 
 	
 /*	
-	private int comp(int i) {
-		int j=i;
-		if(i>127)
-			j=-(256-i);
-		if(i<0)
-			j=256+i;
-		return j;
-	}
-
-	private String hex2(int i) {
-		String a="(";
-		if (i<16)
-			a+="0";
-		return a+hex(i)+")h";
-	}
-	private String hex2Dig(int i) {
-		String a="";
-		if (i<16)
-			a+="0";
-		return a+hex(i);
-	}
 
 	private void mostrarRegistros(JTable table) {
 		String[] titulos = {"Registro","Contenido"};

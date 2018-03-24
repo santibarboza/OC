@@ -9,7 +9,7 @@ import javax.swing.JTextPane;
 
 import Analisis.Alex_AnalizadorLexico;
 import Analisis.Ase_AnalizadorSintacticoEjecucion;
-import Emulacion.OutpuManager;
+import Emulacion.OutputManager;
 import Emulacion.OutputTextPane;
 import Excepciones.ErrorEjecucion;
 import Excepciones.ErrorLexico;
@@ -26,7 +26,7 @@ public class Principal {
 	private String archivo="";
 	private Alex_AnalizadorLexico alex;
 	private Ase_AnalizadorSintacticoEjecucion asi;
-	private OutpuManager output;
+	private OutputManager output;
 	//private boolean hayPaso;
 	
 	public Principal(){

@@ -34,9 +34,7 @@ public class Alex_AnalizadorLexico {
 		return linea!=null && linea.length()==0;
 	}
 	
-	/**
-	 * Retorna un Token por Demanda
-	 */
+	
 	public Token getToken()throws ErrorLexico,IOException{
 		if(terminoLinea())
 			return recargarLinea();
