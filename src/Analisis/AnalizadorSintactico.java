@@ -8,6 +8,7 @@ import Tokens.Token;
 
 import Emulacion.*;
 import Excepciones.*;
+import Interfaces.Memoria;
 
 public class AnalizadorSintactico {
 
@@ -38,7 +39,7 @@ public class AnalizadorSintactico {
 	/**
 	 * <Inicial> → <Sentencias>  EOF
  	 */
-	public void inicial()throws ErrorSintactico, ErrorLexico, IOException, ErrorSemantico, ErrorEjecucion{
+	public void inicial()throws ErrorSintactico, ErrorLexico, IOException, ErrorEjecucion{
 		try{
 			Sentencias();
 		}catch(ArrayIndexOutOfBoundsException e){
@@ -53,7 +54,7 @@ public class AnalizadorSintactico {
 	*   <Sentencias> → λ | <EtiquetaOLam><Sentencia> <Sentencias>
 	 * @throws ErrorEjecucion 
 	*/
-	public void Sentencias()throws ErrorSintactico, ErrorLexico, IOException, ErrorSemantico, ErrorEjecucion{
+	public void Sentencias()throws ErrorSintactico, ErrorLexico, IOException, ErrorEjecucion{
 		if(esIgual("Id_Etiq") || esSentencia()){
 			EtiquetaOLam();
 			Sentencia();

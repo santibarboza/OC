@@ -1,6 +1,10 @@
 package Emulacion;
 
 import Excepciones.ErrorEjecucion;
+import Interfaces.Ejecucion;
+import Interfaces.Memoria;
+import Interfaces.OutputManager;
+import Utilitarios.Hexadecimal;
 
 public class EjecucionImpl extends Ejecucion {
 	

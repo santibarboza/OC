@@ -3,6 +3,7 @@ package Emulacion;
 import java.util.Hashtable;
 
 import Excepciones.ErrorSintactico;
+import Interfaces.Memoria;
 
 public class TablasdeEtiquetas {
 

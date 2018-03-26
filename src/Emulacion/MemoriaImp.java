@@ -1,6 +1,7 @@
 package Emulacion;
 
 import Excepciones.ErrorEjecucion;
+import Interfaces.Memoria;
 
 public class MemoriaImp implements Memoria{
 	protected int memoria[];

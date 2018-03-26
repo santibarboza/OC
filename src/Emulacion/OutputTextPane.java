@@ -6,6 +6,10 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.table.DefaultTableModel;
 
+import Interfaces.Memoria;
+import Interfaces.OutputManager;
+import Utilitarios.Hexadecimal;
+
 public class OutputTextPane implements OutputManager {
 	private JTextPane outputPanel;
 	private JTable outputMemoryTable;
