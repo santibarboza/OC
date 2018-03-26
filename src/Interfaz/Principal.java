@@ -10,12 +10,13 @@ import Excepciones.*;
 public class Principal {
 	
 	private boolean elegido_arch;
+	private boolean hayPaso;
 	private String archivo="";
 	private AnalizadorLexico alex;
 	private AnalizadorSintactico asi;
 	private OutputManager output;
 	private Ejecucion ejecucion;
-	private boolean hayPaso;
+	private Memoria memoria;
 	
 	public Principal(){
 		elegido_arch=false;
@@ -38,15 +39,14 @@ public class Principal {
 		output=out;
 		try {
 			int dirInicio=obtenerDireccion(dirIni);
+			memoria=new MemoriaImp(dirInicio);
 			alex = new AnalizadorLexico(archivo);
-			asi= new AnalizadorSintactico(alex,dirInicio);
+			asi= new AnalizadorSintactico(alex,memoria);
+			ejecucion=new EjecucionImpl(memoria,output);	
 			asi.inicial();
-			output.setMemoriaTabla(asi.getMemoria(),asi.getTablaEtiqueta());
-			output.mostrarMemoria();
-			output.mostrarRegistros();
+			output.setMemoriaTabla(memoria,asi.getTablaEtiqueta());
 			output.mostrarMensaje("Se compilo correctamente");
-			ejecucion=new EjecucionImpl(asi.getMemoria(),output);	
-		} catch (ErrorLexico |ErrorSintactico|ErrorSemantico | ErrorEjecucion|IOException e){ 	
+		}catch (ErrorLexico |ErrorSintactico|ErrorSemantico | ErrorEjecucion|IOException e){ 	
 			output.mostrarMensaje(e.getMessage());
 			exito=false;
 		}		
@@ -76,8 +76,6 @@ public class Principal {
 	public void resetearRegistros() {
 		asi.getMemoria().resetearRegistros();
 	}
-	
-	
 	public boolean ejecutarPAP(){
 		try {
 			hayPaso=ejecucion.ejecutarPaP();
@@ -99,6 +97,4 @@ public class Principal {
 		}
 		return hayPaso;
 	}
-	
-
 }

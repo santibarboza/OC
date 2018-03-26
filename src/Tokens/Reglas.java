@@ -3,7 +3,7 @@ package Tokens;
 import java.util.Hashtable;
 
 public class Reglas {
-	private static Reglas r=null;
+	protected static Reglas r=null;
 	protected static Hashtable<String,Integer>opcodes;
 	protected static Hashtable<Character,String> casosTriviales;
 	
@@ -16,7 +16,7 @@ public class Reglas {
 			r=new Reglas();
 		return r;
 	}
-	private void cargarSentencias(){
+	protected void cargarSentencias(){
 		opcodes= new Hashtable<String,Integer>();
 		try{
 		opcodes.put("add",0);

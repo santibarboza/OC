@@ -8,14 +8,13 @@ public class AnalizadorLexico {
 	protected Archivo file;
 	protected String linea;
 	protected int indexLine;
-	protected int nro_linea;
+	protected int numerolinea;
 	protected static Reglas reglas;
 
 		
 	public AnalizadorLexico(String filename) throws IOException{
-		nro_linea=0;
+		numerolinea=0;
 		file= new Archivo(filename);
-		
 		recargarLinea();
 		reglas=Reglas.crearInstancia();
 	}
@@ -24,11 +23,11 @@ public class AnalizadorLexico {
 	private Token recargarLinea() throws IOException{
 		indexLine=0;
 		do{
-			nro_linea++;
+			numerolinea++;
 			linea=file.readLine();
 		}while(lineaVacia(linea));
 	
-		return new TokenSalto(nro_linea,indexLine);
+		return new TokenSalto(numerolinea,indexLine);
 	}
 	private boolean lineaVacia(String linea){
 		return linea!=null && linea.length()==0;
@@ -40,30 +39,35 @@ public class AnalizadorLexico {
 			return recargarLinea();
 		if(terminoArchivo())
 			return findeArchivo();
-
-		char caracterActual=linea.charAt(indexLine);
+		
+		Token tokenARetornar=null;
+		char caracterActual=caracterActual();
+		
 		
 		if(esEspacioBlanco())
-			return saltarBlancos();
+			tokenARetornar= saltarBlancos();
 		else if(reglas.esTrivial(caracterActual))
-				return analizarCasoTrivial(caracterActual);
+				tokenARetornar= analizarCasoTrivial(caracterActual);
 			else if(caracterActual=='/')
-					return analizarComentarios();
+					tokenARetornar= analizarComentarios();
 				else if(esOffsetNegativo())
 						analizarDesplazamientoNegativo();
 					else if(esDigito())
-							return analizarDigito();
+							tokenARetornar= analizarDigito();
 						else if(esRegistro())
-								return analizarRegistro();
+								tokenARetornar= analizarRegistro();
 							else if(esDireccion())
-									return analizarDireccion();
+									tokenARetornar= analizarDireccion();
 								else if(esLetra())
-									   return analizarIdentificador();
-		
-		throw new ErrorLexico("ErrorLexico en "+nro_linea+":"+indexLine+"= El caracter "+caracterActual+" no esta valido en el lenguaje");
+										tokenARetornar= analizarIdentificador();
+									else
+		throw new ErrorLexico("ErrorLexico en "+numerolinea+":"+indexLine+"= El caracter "+caracterActual+" no esta valido en el lenguaje");
+		return tokenARetornar;
 	}
 
-	
+	private char caracterActual(){
+		return linea.charAt(indexLine);
+	}
 
 	private boolean terminoLinea(){
 		return linea!=null && indexLine== linea.length();
@@ -72,8 +76,7 @@ public class AnalizadorLexico {
 		return linea==null;
 	}
 	private boolean esEspacioBlanco(){
-		char caracterActual=linea.charAt(indexLine);
-		return caracterActual==' ' || caracterActual==(char)9;
+		return caracterActual()==' ' || caracterActual()==(char)9;
 	}
 	private boolean esSiguienteCaracter(char nextChar){
 		return indexLine<(linea.length()-1) && linea.charAt(indexLine+1)==nextChar;
@@ -82,11 +85,10 @@ public class AnalizadorLexico {
 		return linea.charAt(indexLine)=='-' && digitoDe0a8(indexLine+1);
 	}
 	private boolean esDigito(){
-		char caracterActual= linea.charAt(indexLine);
-		return (caracterActual>='0' && caracterActual<='9'); 
+		return (caracterActual()>='0' && caracterActual()<='9'); 
 	}
 	private boolean esRegistro(){
-		return indexLine<(linea.length()-1) && linea.charAt(indexLine)=='R' && digitoHexa(indexLine+1);//&& !esCaracterIdentificador(indexLine+2);
+		return indexLine<(linea.length()-1) && linea.charAt(indexLine)=='R' && digitoHexa(indexLine+1);
 	}
 	private boolean esDireccion(){
 		return digitoHexa(indexLine)&& digitoHexa(indexLine+1);
@@ -109,7 +111,7 @@ public class AnalizadorLexico {
 	}
 	private Token analizarCasoTrivial(char caracterActual){
 		indexLine++;
-		return new Token(reglas.getIDTrivial(caracterActual),caracterActual+"",nro_linea,indexLine+1);
+		return new Token(reglas.getIDTrivial(caracterActual),caracterActual+"",numerolinea,indexLine+1);
 	}
 	private Token analizarComentarios() throws ErrorLexico, IOException{
 		if(esSiguienteCaracter('/'))			
@@ -117,13 +119,13 @@ public class AnalizadorLexico {
 		else if(esSiguienteCaracter('*'))
 			return comentarioMultilinea();
 		else
-			throw new ErrorLexico("Error Lexico en "+nro_linea+":"+indexLine+" = El caracter siguiente a / no es valido en el lenguaje");
+			throw new ErrorLexico("Error Lexico en "+numerolinea+":"+indexLine+" = El caracter siguiente a / no es valido en el lenguaje");
 	}
 	private Token analizarDesplazamientoNegativo(){
 		int i=(linea.charAt(indexLine-1)-48); 
 		int complemento=16-i;
 		indexLine+=2;
-		return new Token("Lit_Desp",complemento,nro_linea,indexLine);
+		return new Token("Lit_Desp",complemento,numerolinea,indexLine);
 	}
 	private Token analizarDigito() throws ErrorLexico{
 		char caracterActual=linea.charAt(indexLine);
@@ -131,23 +133,23 @@ public class AnalizadorLexico {
 		if(digitoHexa(indexLine)){
 			indexLine++;
 			int i=Integer.parseInt(""+caracterActual+linea.charAt(indexLine-1),16);
-			return new Token("Lit_Dir",i,nro_linea,indexLine-1);
+			return new Token("Lit_Dir",i,numerolinea,indexLine-1);
 		}else if(caracterActual<='7')
-			return new Token("Lit_Desp",(caracterActual-48),nro_linea,indexLine);
+			return new Token("Lit_Desp",(caracterActual-48),numerolinea,indexLine);
 		else
-			throw new ErrorLexico("ErrorLexico en "+nro_linea+":"+indexLine+"= Desplazamiento fuera de rango");
+			throw new ErrorLexico("ErrorLexico en "+numerolinea+":"+indexLine+"= Desplazamiento fuera de rango");
 	}
 	private Token analizarRegistro(){
 		indexLine=indexLine+2;
 		int numero=linea.charAt(indexLine-1);
 		if(numero>57)
 			numero-=7;
-		return new Token("Id_Reg",numero -48,nro_linea,indexLine-1);
+		return new Token("Id_Reg",numero -48,numerolinea,indexLine-1);
 	}
 	private Token analizarDireccion(){
 		int i= Integer.parseInt(""+linea.charAt(indexLine)+linea.charAt(indexLine+1),16);
 		indexLine=indexLine+2; 
-		return new Token("Lit_Dir",i,nro_linea,indexLine-1);
+		return new Token("Lit_Dir",i,numerolinea,indexLine-1);
 	}
 	private Token analizarIdentificador() {
 		int numerocolumna=indexLine+1;
@@ -155,16 +157,16 @@ public class AnalizadorLexico {
 	
 		if(reglas.esSentencia(lexema)){
 			int id= reglas.getIDSentencia(lexema);
-			return new Token(reglas.getLexemaSentencia(id),id,nro_linea,numerocolumna);
+			return new Token(reglas.getLexemaSentencia(id),id,numerolinea,numerocolumna);
 		}else
-			return new Token("Id_Etiq",lexema,nro_linea,numerocolumna);
+			return new Token("Id_Etiq",lexema,numerolinea,numerocolumna);
 				
 	}
 	private Token comentarioSimple() throws ErrorLexico,IOException{
 		return recargarLinea();
 	}
 	private Token comentarioMultilinea() throws ErrorLexico,IOException {
-		int linea_inicio=nro_linea;
+		int linea_inicio=numerolinea;
 		int numeroColumna=indexLine+1;
 		Token token=null;
 
@@ -204,7 +206,7 @@ public class AnalizadorLexico {
 	}
 		private Token findeArchivo(){
 		file.Close();
-		return new TokenEOF(nro_linea,indexLine);
+		return new TokenEOF(numerolinea,indexLine);
 	}
 	
 }

@@ -29,14 +29,13 @@ public class TablasdeEtiquetas {
 			if(direccionTarget==null)
 				throw new ErrorSintactico("ErrorSintactico = Etiqueta "+pendiente.get(i)+" no definida");
 			
-			if(opcode==8 || opcode==11){
+			if(opcode==8 || opcode==11)
 				memoria.escribirMemoria(i, direccionTarget);
-			}else{
+			else{
 				pcActual=i+1;
 				des=direccionTarget-pcActual;
-				if(des<0){
+				if(des<0)
 					des=256+des;
-				}
 				memoria.escribirMemoria(i, des);
 			}
 		}

@@ -8,13 +8,10 @@ public class MemoriaImp implements Memoria{
 	protected int direccionInicio;
 	protected int direccionActual;
 	
-	public MemoriaImp(){
-		direccionInicio=0;
-		memoria= new int[256];
-		registro= new int[16];
-	}
+	
 	public MemoriaImp(int dir){
 		direccionInicio=dir;
+		direccionActual=direccionInicio;
 		memoria= new int[256];
 		registro= new int[16];
 	}

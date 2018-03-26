@@ -151,7 +151,6 @@ public class Help extends JFrame {
 		System.out.println(" 	del Centro de Estudiantes de Computacion, para ayudar a los alumnos de Organizacion de Computadoras");
 		System.out.println("								");
 		System.out.println("Agedecimiento:							");
-		//System.out.println("								");
 		System.out.println("	ooooooooooooooooooooooooooooooooooooooooooooooooooooo	");
 		System.out.println("	       a888b.  88888b  a888b.                           ");
 		System.out.println("	      d8' `88 a88aa   88  `88 .d888b. 88d8b.d8b.       	");

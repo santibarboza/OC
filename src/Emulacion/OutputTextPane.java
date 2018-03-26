@@ -25,6 +25,8 @@ public class OutputTextPane implements OutputManager {
 	public void setMemoriaTabla(Memoria memoriaCompleta,TablasdeEtiquetas etiquetasCompletas) {
 		memoria=memoriaCompleta;
 		etiquetas=etiquetasCompletas;
+		mostrarMemoria();
+		mostrarRegistros();
 	}
 	public void mostrarMemoria(){
 		String[] titulos = {"Dir","Memoria"};
