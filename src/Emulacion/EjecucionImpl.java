@@ -10,9 +10,9 @@ public class EjecucionImpl extends Ejecucion {
 	
 	
 	private int pc,opcode;
-	int registroDIndex, registroSIndex, registroTIndex;
-	int bufferRegistroD,bufferRegistroS,bufferRegistroT;
-	int addr, offset,desplazamiento;
+	private int registroDIndex, registroSIndex, registroTIndex;
+	private int bufferRegistroD,bufferRegistroS,bufferRegistroT;
+	private int addr, offset,desplazamiento;
 	
 	
 	public EjecucionImpl(Memoria memory,OutputManager out){
