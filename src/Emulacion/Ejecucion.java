@@ -11,5 +11,7 @@ public abstract class Ejecucion {
 		output=out;
 	}
 	public abstract void Ejecutar() throws ErrorEjecucion;
+	public abstract boolean ejecutarPaP() throws ErrorEjecucion ;
+	public abstract boolean pasoAdelante() throws ErrorEjecucion ;
 
 }

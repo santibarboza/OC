@@ -2,37 +2,25 @@ package Interfaz;
 
 import java.io.IOException;
 
-//import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-
-import Analisis.Alex_AnalizadorLexico;
-import Analisis.Ase_AnalizadorSintacticoEjecucion;
-import Emulacion.OutputManager;
-import Emulacion.OutputTextPane;
-import Excepciones.ErrorEjecucion;
-import Excepciones.ErrorLexico;
-import Excepciones.ErrorSemantico;
-import Excepciones.ErrorSintactico;
+import Analisis.*;
+import Emulacion.*;
+import Excepciones.*;
 
 
 public class Principal {
-
-	/**
-	 * @param args
-	 */
+	
 	private boolean elegido_arch;
 	private String archivo="";
-	private Alex_AnalizadorLexico alex;
-	private Ase_AnalizadorSintacticoEjecucion asi;
+	private AnalizadorLexico alex;
+	private AnalizadorSintactico asi;
 	private OutputManager output;
-	//private boolean hayPaso;
+	private Ejecucion ejecucion;
+	private boolean hayPaso;
 	
 	public Principal(){
 		elegido_arch=false;
 		archivo="";
-//		hayPaso=true;
+		hayPaso=true;
 	}
 	public void setArchivoNuevo(String arch){
 		archivo =arch;
@@ -44,76 +32,73 @@ public class Principal {
 	public boolean isSelected(){
 		return elegido_arch;
 	}
-	public boolean compilar(String dirIni,JTextPane textPane,JTable mem){
+	
+	public boolean compilar(String dirIni,OutputManager out){
 		boolean exito=true;
-		output=new OutputTextPane(textPane,mem);
+		output=out;
 		try {
-			int dirInicio;
-			try{
-				dirInicio=Integer.parseInt(dirIni, 16);
-			}catch(NumberFormatException e){
-				throw new ErrorEjecucion("La direccion de ensamblado es invalida");		
-			}
-			if(dirInicio>255 ||dirInicio<0)
-				throw new ErrorEjecucion("La direccion de ensamblado es invalida");
-			
-			alex = new Alex_AnalizadorLexico(archivo);
-			asi= new Ase_AnalizadorSintacticoEjecucion(alex,dirInicio);
-			System.out.println("Inicia Analisis...");
+			int dirInicio=obtenerDireccion(dirIni);
+			alex = new AnalizadorLexico(archivo);
+			asi= new AnalizadorSintactico(alex,dirInicio);
 			asi.inicial();
-			output.mostrarMemoria(asi.getMemoria(),asi.getTablaEtiqueta());
-			
-			JOptionPane.showMessageDialog(null, "Se compilo correctamente");
-		} catch (ErrorLexico |ErrorSintactico|ErrorSemantico | ErrorEjecucion e){ 	
-			System.out.println(e.getMessage()); 
-			JOptionPane.showMessageDialog(null, e.getMessage());
+			output.setMemoriaTabla(asi.getMemoria(),asi.getTablaEtiqueta());
+			output.mostrarMemoria();
+			output.mostrarRegistros();
+			output.mostrarMensaje("Se compilo correctamente");
+			ejecucion=new EjecucionImpl(asi.getMemoria(),output);	
+		} catch (ErrorLexico |ErrorSintactico|ErrorSemantico | ErrorEjecucion|IOException e){ 	
+			output.mostrarMensaje(e.getMessage());
 			exito=false;
-		} catch ( IOException e) {
-			e.printStackTrace();
+		}		
+		return exito;
+	}
+	private int obtenerDireccion(String dirIni) throws ErrorEjecucion {
+		int dirInicio;
+		try{
+			dirInicio=Integer.parseInt(dirIni, 16);
+		}catch(NumberFormatException e){
+			throw new ErrorEjecucion("La direccion de ensamblado es invalida");		
+		}
+		if(dirInicio>255 ||dirInicio<0)
+			throw new ErrorEjecucion("La direccion de ensamblado es invalida");
+		return dirInicio;
+	}
+	public boolean ejecutar(){
+		boolean exito=true;
+		try {		
+			ejecucion.Ejecutar();
+		} catch (ErrorEjecucion e) {
+			output.mostrarMensaje(e.getMessage());
 			exito=false;
 		}
-		
 		return exito;
+	}
+	public void resetearRegistros() {
+		asi.getMemoria().resetearRegistros();
 	}
 	
-	/*
-	public boolean ejecutar(JTable table,JTable mem,JLabel PC,JLabel Inst){
-		boolean exito=true;
+	
+	public boolean ejecutarPAP(){
 		try {
-			asi.ejecutar(table,mem,PC,Inst);
-			
-		} catch (ErrorSintactico | ErrorEjecucion e) {
-			System.out.println(e.getMessage()); 
-			JOptionPane.showMessageDialog(null, e.getMessage());
-			exito=false;
-		}
-		return exito;
-	}
-	public boolean ejecutarPAP(JTable table,JTable mem,JLabel PC,JLabel Inst){
-		try {
-			hayPaso=asi.ejecutarPaP(table,mem,PC,Inst);
-		} catch (ErrorSintactico | ErrorEjecucion e) {
-			System.out.println(e.getMessage()); 
-			JOptionPane.showMessageDialog(null, e.getMessage());
+			hayPaso=ejecucion.ejecutarPaP();
+		} catch (ErrorEjecucion e) {
+			output.mostrarMensaje(e.getMessage());
 			hayPaso=false;
 		}
 		return hayPaso;
 	}
-	public boolean adelantarPaso(JTable table,JTable mem,JLabel PC,JLabel Inst){
+	public boolean adelantarPaso(){
 		try {
 			if(hayPaso)
-				hayPaso=asi.pasoAdelante(table,mem,PC,Inst);
+				hayPaso=ejecucion.pasoAdelante();
 			else
 				throw new ErrorEjecucion("No se pueden dar mas Pasos (o se produjo un Error o se ejecuto un fin)");
-		} catch (ErrorSintactico | ErrorEjecucion e) {
-			System.out.println(e.getMessage()); 
-			JOptionPane.showMessageDialog(null, e.getMessage());
+		} catch (ErrorEjecucion e) {
+			output.mostrarMensaje(e.getMessage());
 			hayPaso=false;
 		}
 		return hayPaso;
 	}
-	public void resetearRegistros(){
-		asi.resetearRegistros();
-	}
-*/
+	
+
 }

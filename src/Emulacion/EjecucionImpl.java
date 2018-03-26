@@ -12,19 +12,14 @@ public class EjecucionImpl extends Ejecucion {
 	
 	
 	public EjecucionImpl(Memoria memory,OutputManager out){
-		super(memory,out);
-		
+		super(memory,out);		
 	}
 	
-	//	public void ejecutar(JTable table,JTable mem,JLabel PC,JLabel Inst) throws ErrorSintactico, ErrorEjecucion {
 	public void Ejecutar() throws ErrorEjecucion{
 		int instruccion=0;
 		boolean noTermina=true;
 		
-		iniciarPC();
-		
-		System.out.println("Ejecucion del Programa");
-		
+		iniciarPC();	
 		while(noTermina) {
 			instruccion=fetch();
 			decode(instruccion);
@@ -56,9 +51,9 @@ public class EjecucionImpl extends Ejecucion {
 		addr=(instruccion >> 0) & 255;
 	}
 	private void leerRegistros() {
-		bufferRegistroS=memoria.leerRegistro(bufferRegistroS);
-		bufferRegistroT=memoria.leerRegistro(bufferRegistroT);
-		bufferRegistroD=memoria.leerRegistro(bufferRegistroD);
+		bufferRegistroS=memoria.leerRegistro(registroSIndex);
+		bufferRegistroT=memoria.leerRegistro(registroTIndex);
+		bufferRegistroD=memoria.leerRegistro(registroDIndex);
 	}
 	private void calcularOffset() {
 		offset=registroTIndex;
@@ -208,10 +203,26 @@ public class EjecucionImpl extends Ejecucion {
 	private void writeBack() {
 		bufferRegistroD=bufferRegistroD&255;
 		memoria.escribirRegistro(registroDIndex, bufferRegistroD);
-		//mostrarRegistros(table);
-		//mostrarMemoria(mem);
+		output.mostrarRegistros();
+		output.mostrarMemoria();
 	}
 
-	
+	private int pcPAP;
+	public boolean ejecutarPaP() throws ErrorEjecucion {
+		pcPAP=memoria.getDireccionInicio();
+		return pasoAdelante();
+	}
+	public boolean pasoAdelante() throws ErrorEjecucion {
+		boolean hayOtroPaso=true;
+		int instruccion=0;
+		pc= pcPAP;
+		instruccion=fetch();
+		decode(instruccion);
+		hayOtroPaso=execute();
+		writeBack();
+		pcPAP=pc;
+		return hayOtroPaso;
+	}
+
 	
 }

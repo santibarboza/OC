@@ -13,15 +13,9 @@ import java.awt.Font;
 
 public class Help extends JFrame {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 
-	/**
-	 * Launch the application.
-	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -38,9 +32,6 @@ public class Help extends JFrame {
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
 	public Help() {
 		setSize(600,500);
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -136,5 +127,42 @@ public class Help extends JFrame {
 		
 		contentPane.repaint();
 	}
-	
+	public static void mostrarAyuda() {
+
+		System.out.println("\n\n		 ____ ____ ____ ____ ____ ____ ____ ____ ____ ____ 	");
+		System.out.println("		||I |||n |||t |||e |||r |||p |||r |||e |||t |||e ||	");
+		System.out.println("		||__|||__|||__|||__|||__|||__|||__|||__|||__|||__||	");
+		System.out.println("		|/__\\|/__\\|/__\\|/__\\|/__\\|/__\\|/__\\|/__\\|/__\\|/__\\|	");
+		System.out.println("			      ____ ____ ____ ____ ____ 			");
+		System.out.println("			     ||O |||C |||U |||N |||S ||			");
+		System.out.println("			     ||__|||__|||__|||__|||__||			");
+		System.out.println("			     |/__\\|/__\\|/__\\|/__\\|/__\\|			");
+		System.out.println();
+		System.out.println("				Manual Interprete OCUNS\n");
+
+		System.out.println("Modo de Empleo:\n	java -jar ./OCUNS.jar \n");
+
+		System.out.println("		El intérprete OCUNS es un programa desarrollado en java que permite ensamblar codigo de ");
+		System.out.println("	la arquitectura OCUNS. Además como funcionalidades adicionales el interprete también permite ejecutar el ");
+		System.out.println("	codigo OCUNS completo o de a pasos y Visualizar el estado de la memoria y el banco de registro. \n");
+		System.out.println("\n		Para mas informacion sobre el set de instrucciones,oprimir el boton ayuda o consultar el manualde usuario");
+
+		System.out.println("		Este programa fue desarollado en el marco del proyecto \"Herramientas para estudiar Computacion\"");
+		System.out.println(" 	del Centro de Estudiantes de Computacion, para ayudar a los alumnos de Organizacion de Computadoras");
+		System.out.println("								");
+		System.out.println("Agedecimiento:							");
+		//System.out.println("								");
+		System.out.println("	ooooooooooooooooooooooooooooooooooooooooooooooooooooo	");
+		System.out.println("	       a888b.  88888b  a888b.                           ");
+		System.out.println("	      d8' `88 a88aa   88  `88 .d888b. 88d8b.d8b.       	");
+		System.out.println("	      88       88     88      88' `88 88'`88'`88	");
+		System.out.println("	       Y888P'  88888P  Y888P' `8888P' dP  dP  dP   	");
+		System.out.println("	ooooooooooooooooooooooooooooooooooooooooooooooooooooo  	");
+		System.out.println("								");
+		System.out.println("Desarollador:							");
+		System.out.println("		Santiago Rubén Barboza 				");
+		System.exit(0);
+		
+		
+	}
 }

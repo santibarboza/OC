@@ -26,14 +26,10 @@ public class MemoriaImp implements Memoria{
 		memoria[direccionActual]=m;
 		direccionActual++;
 	}
-	public void escribirMemoria(int dir, int m){
-		memoria[dir]=m;
-	}
-	public int leerMemoria(int dir){
-		return memoria[dir];
-	}
 	public void resetearRegistros(){
 		registro= new int[16];
+		for(int i=0;i<16;i++)
+			registro[i]=0;
 	}
 	public void resetearDireccionActual(){
 		direccionActual=direccionInicio;
@@ -44,11 +40,16 @@ public class MemoriaImp implements Memoria{
 	public int getDireccionInicio(){
 		return direccionInicio;
 	}
-	public void escribirRegistro(int nro, int m) {
-		registro[nro]=m;
-	}
-	@Override
 	public int leerRegistro(int nro) {
 		return registro[nro];
+	}
+	public int leerMemoria(int dir){
+		return memoria[dir];
+	}
+	public void escribirMemoria(int dir, int m){
+		memoria[dir]=m;
+	}
+	public void escribirRegistro(int nro, int m) {
+		registro[nro]=m;
 	}
 }

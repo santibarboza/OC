@@ -4,7 +4,7 @@ import java.io.IOException;
 import Tokens.*;
 import Excepciones.ErrorLexico;
 
-public class Alex_AnalizadorLexico {
+public class AnalizadorLexico {
 	protected Archivo file;
 	protected String linea;
 	protected int indexLine;
@@ -12,7 +12,7 @@ public class Alex_AnalizadorLexico {
 	protected static Reglas reglas;
 
 		
-	public Alex_AnalizadorLexico(String filename) throws IOException{
+	public AnalizadorLexico(String filename) throws IOException{
 		nro_linea=0;
 		file= new Archivo(filename);
 		

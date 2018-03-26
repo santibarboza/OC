@@ -8,21 +8,25 @@ import javax.swing.table.DefaultTableModel;
 
 public class OutputTextPane implements OutputManager {
 	private JTextPane outputPanel;
-	private JTable outputTable;
+	private JTable outputMemoryTable;
+	private JTable outputRegistrosTable;
 	private JLabel PCLabel;
 	private JLabel instruccionLabel;
 	private Memoria memoria;
 	private TablasdeEtiquetas etiquetas;
 	
-	public OutputTextPane(JTextPane panel,JTable table,JLabel PC,JLabel Instruccion){
+	public OutputTextPane(JTextPane panel,JTable memoria,JTable registros,JLabel PC,JLabel Instruccion){
 		outputPanel=panel;
-		outputTable=table;
+		outputMemoryTable=memoria;
+		outputRegistrosTable=registros;
 		PCLabel=PC;
 		instruccionLabel=Instruccion;
 	}
-	public void mostrarMemoria(Memoria memoriaCompleta,TablasdeEtiquetas etiquetasCompletas) {
+	public void setMemoriaTabla(Memoria memoriaCompleta,TablasdeEtiquetas etiquetasCompletas) {
 		memoria=memoriaCompleta;
 		etiquetas=etiquetasCompletas;
+	}
+	public void mostrarMemoria(){
 		String[] titulos = {"Dir","Memoria"};
 		DefaultTableModel m=new DefaultTableModel(null,titulos);
 		
@@ -32,14 +36,29 @@ public class OutputTextPane implements OutputManager {
 			mem[1]=Hexadecimal.hex2Dig(memoria.leerMemoria(i));
 			m.addRow(mem);
 		}
-		outputTable.setModel(m);
+		outputMemoryTable.setModel(m);
 		mostrarCodificado();
+	}
+	public void mostrarRegistros(){
+			String[] titulos = {"Registro","Contenido"};
+			DefaultTableModel m=new DefaultTableModel(null,titulos);
+			
+			String [][] registros=new String [16][2];
+			for(int i=0;i<16;i++){
+				registros[i][0]="R"+Hexadecimal.hex(i);
+				if(memoria.leerRegistro(i)<16)
+					registros[i][1]= "0"+Hexadecimal.hex(memoria.leerRegistro(i));
+				else
+					registros[i][1]= ""+Hexadecimal.hex(memoria.leerRegistro(i));
+				m.addRow(registros[i]);
+			}
+			outputRegistrosTable.setModel(m);
 	}
 	private void mostrarCodificado() {
 		int i=0;
 		int PC,dir=memoria.getDireccionInicio();
 		String ret="";
-		for(i=dir;i+1<memoria.getDireccionActual();i=i+2){
+		for(i=dir;i<memoria.getDireccionActual()-1;i=i+2){
 			PC=i;
 			if(i<16)
 				ret+="0";
@@ -131,4 +150,5 @@ public class OutputTextPane implements OutputManager {
 	public void actualizarVisualIntruccion(int pc){
 		instruccionLabel.setText(mostrarInstruccion(pc));
 	}
+	
 }
