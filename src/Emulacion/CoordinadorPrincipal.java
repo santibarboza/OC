@@ -48,7 +48,7 @@ public class CoordinadorPrincipal {
 			asi.inicial();
 			output.setMemoriaTabla(memoria,asi.getTablaEtiqueta());
 			output.mostrarMensaje("Se compilo correctamente");
-		}catch (ErrorLexico |ErrorSintactico| ErrorEjecucion|IOException e){ 	
+		}catch (ErrorOCUNS|IOException e){ 	
 			output.mostrarMensaje(e.getMessage());
 			exito=false;
 		}		

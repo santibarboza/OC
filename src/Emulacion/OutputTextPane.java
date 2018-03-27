@@ -11,7 +11,7 @@ import Interfaces.OutputManager;
 import Utilitarios.Hexadecimal;
 
 public class OutputTextPane implements OutputManager {
-	private JTextPane outputPanel;
+	private JTextPane outputCompiladoPanel;
 	private JTable outputMemoryTable;
 	private JTable outputRegistrosTable;
 	private JLabel PCLabel;
@@ -20,7 +20,7 @@ public class OutputTextPane implements OutputManager {
 	private TablasdeEtiquetas etiquetas;
 	
 	public OutputTextPane(JTextPane panel,JTable memoria,JTable registros,JLabel PC,JLabel Instruccion){
-		outputPanel=panel;
+		outputCompiladoPanel=panel;
 		outputMemoryTable=memoria;
 		outputRegistrosTable=registros;
 		PCLabel=PC;
@@ -73,7 +73,7 @@ public class OutputTextPane implements OutputManager {
 			ret+="\n";
 		}
 		ret+=("\n");
-		outputPanel.setText(ret);
+		outputCompiladoPanel.setText(ret);
 	}
 	
 	private String mostrarInstruccion(int i) {

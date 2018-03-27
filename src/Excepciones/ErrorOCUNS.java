@@ -1,12 +1,12 @@
 package Excepciones;
 
-public class ErrorLexico extends ErrorOCUNS {
+public class ErrorOCUNS	extends Exception {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public ErrorLexico(String err){
+	public ErrorOCUNS(String err){
 		super(err);
 	}
 }

@@ -1,6 +1,6 @@
 package Excepciones;
 
-public class ErrorSintactico extends Exception {
+public class ErrorSintactico extends ErrorOCUNS {
 
 	/**
 	 * 

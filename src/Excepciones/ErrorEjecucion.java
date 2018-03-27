@@ -1,6 +1,6 @@
 package Excepciones;
 
-public class ErrorEjecucion extends Exception {
+public class ErrorEjecucion extends ErrorOCUNS {
 
 	/**
 	 * 

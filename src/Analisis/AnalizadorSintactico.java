@@ -39,7 +39,7 @@ public class AnalizadorSintactico {
 	/**
 	 * <Inicial> → <Sentencias>  EOF
  	 */
-	public void inicial()throws ErrorSintactico, ErrorLexico, IOException, ErrorEjecucion{
+	public void inicial()throws ErrorOCUNS, IOException{
 		try{
 			Sentencias();
 		}catch(ArrayIndexOutOfBoundsException e){
@@ -54,7 +54,7 @@ public class AnalizadorSintactico {
 	*   <Sentencias> → λ | <EtiquetaOLam><Sentencia> <Sentencias>
 	 * @throws ErrorEjecucion 
 	*/
-	public void Sentencias()throws ErrorSintactico, ErrorLexico, IOException, ErrorEjecucion{
+	public void Sentencias()throws ErrorOCUNS, IOException{
 		if(esIgual("Id_Etiq") || esSentencia()){
 			EtiquetaOLam();
 			Sentencia();
@@ -73,7 +73,7 @@ public class AnalizadorSintactico {
 	 * <Sentencia>   → <SentenciaT3>  idReg B | hlt | \n
 	 * @throws ErrorEjecucion 
 	 */
-	private void Sentencia() throws ErrorSintactico, ErrorLexico, IOException, ErrorEjecucion {
+	private void Sentencia() throws ErrorOCUNS, IOException {
 		int opcode = 0,registroS,registroT,offset,registroD;
 
 		if(!esIgual("T_Salto"))
@@ -140,7 +140,7 @@ public class AnalizadorSintactico {
 			throw new ErrorSintactico(Error("Inicio de Sentencia"));
 	}
 	
-	private void dirOEtiq() throws ErrorSintactico, ErrorLexico, IOException, ErrorEjecucion {
+	private void dirOEtiq() throws ErrorOCUNS, IOException {
 		if(esIgual("Lit_Dir")){
 			memoria.escribirMemoria(tokenActual.get_Lexema());
 			match("Lit_Dir");
